@@ -1,0 +1,609 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<style>
+  * { box-sizing: border-box; }
+  body { margin: 0; }
+  input, button, select { font-family: inherit; }
+  input:focus, button:focus { outline: none; }
+</style>
+</helmet>
+<div style="width:100%;max-width:480px;height:100vh;margin:0 auto;display:flex;flex-direction:column;background:oklch(0.98 0.004 260);font-family:'Helvetica Neue',Helvetica,Arial,sans-serif;color:oklch(0.22 0.02 260);overflow:hidden;">
+
+  <div style="flex-shrink:0;padding:20px 20px 14px;border-bottom:1px solid oklch(0.9 0.006 260);background:#ffffff;">
+    <div style="font-size:22px;font-weight:700;letter-spacing:-0.01em;">{{ tabTitle }}</div>
+  </div>
+
+  <div style="flex:1;overflow-y:auto;padding:16px 16px 24px;">
+
+    <!-- TAB: EXERCICES -->
+    <sc-if value="{{ isTabExercices }}" hint-placeholder-val="{{ true }}">
+      <div>
+        <button onClick="{{ toggleAddExercise }}" style="width:100%;padding:13px;border-radius:10px;border:1px dashed oklch(0.75 0.01 260);background:#ffffff;color:#3a6bc9;font-size:15px;font-weight:600;cursor:pointer;margin-bottom:16px;">{{ addExerciseLabel }}</button>
+
+        <sc-if value="{{ showAddExercise }}" hint-placeholder-val="{{ false }}">
+          <div style="background:#ffffff;border:1px solid oklch(0.9 0.006 260);border-radius:12px;padding:14px;margin-bottom:18px;display:flex;flex-direction:column;gap:10px;">
+            <input type="text" placeholder="Nom de l'exercice (ex: Soulevé de terre)" value="{{ newExerciseName }}" onChange="{{ onNewExerciseNameChange }}" style="width:100%;padding:11px 12px;border:1px solid oklch(0.88 0.006 260);border-radius:8px;font-size:15px;color:oklch(0.22 0.02 260);"/>
+            <div style="display:flex;gap:6px;">
+              <sc-for list="{{ categoryOptions }}" as="cat" hint-placeholder-count="3">
+                <button onClick="{{ cat.onSelect }}" style="{{ cat.buttonStyle }}">{{ cat.label }}</button>
+              </sc-for>
+            </div>
+            <div style="display:flex;gap:8px;margin-top:4px;">
+              <button onClick="{{ toggleAddExercise }}" style="flex:1;padding:10px;border-radius:8px;border:1px solid oklch(0.88 0.006 260);background:#ffffff;color:oklch(0.55 0.01 260);font-size:14px;font-weight:600;cursor:pointer;">Annuler</button>
+              <button onClick="{{ addExercise }}" style="flex:1;padding:10px;border-radius:8px;border:none;background:#3a6bc9;color:#ffffff;font-size:14px;font-weight:600;cursor:pointer;">Ajouter</button>
+            </div>
+          </div>
+        </sc-if>
+
+        <sc-for list="{{ exerciseSections }}" as="section" hint-placeholder-count="3">
+          <div style="margin-bottom:20px;">
+            <div style="font-size:13px;font-weight:700;color:{{ section.color }};text-transform:uppercase;letter-spacing:0.04em;margin-bottom:8px;">{{ section.label }}</div>
+            <sc-if value="{{ section.isEmpty }}" hint-placeholder-val="{{ false }}">
+              <div style="font-size:14px;color:oklch(0.55 0.01 260);padding:4px 0;">Aucun exercice</div>
+            </sc-if>
+            <sc-for list="{{ section.items }}" as="ex" hint-placeholder-count="2">
+              <div style="display:flex;align-items:center;justify-content:space-between;background:#ffffff;border:1px solid oklch(0.92 0.006 260);border-radius:10px;padding:12px 14px;margin-bottom:6px;">
+                <div style="font-size:15px;">{{ ex.name }}</div>
+                <button onClick="{{ ex.onDelete }}" style="border:none;background:none;color:oklch(0.6 0.01 260);font-size:18px;line-height:1;cursor:pointer;padding:0 4px;">×</button>
+              </div>
+            </sc-for>
+          </div>
+        </sc-for>
+      </div>
+    </sc-if>
+
+    <!-- TAB: TEMPLATES -->
+    <sc-if value="{{ isTabTemplates }}" hint-placeholder-val="{{ false }}">
+      <div>
+        <sc-if value="{{ isEditingTemplate }}" hint-placeholder-val="{{ false }}">
+          <div>
+            <input type="text" placeholder="Nom du template (ex: Push day)" value="{{ editingTemplate.name }}" onChange="{{ onTemplateNameChange }}" style="width:100%;padding:12px 13px;border:1px solid oklch(0.88 0.006 260);border-radius:8px;font-size:16px;font-weight:600;margin-bottom:10px;"/>
+            <div style="display:flex;gap:6px;margin-bottom:20px;">
+              <sc-for list="{{ templateCategoryOptions }}" as="cat" hint-placeholder-count="2">
+                <button onClick="{{ cat.onSelect }}" style="{{ cat.buttonStyle }}">{{ cat.label }}</button>
+              </sc-for>
+            </div>
+
+            <div style="font-size:13px;font-weight:700;color:oklch(0.55 0.01 260);text-transform:uppercase;letter-spacing:0.04em;margin-bottom:8px;">Exercices du template</div>
+            <sc-if value="{{ templateItemsEmpty }}" hint-placeholder-val="{{ false }}">
+              <div style="font-size:14px;color:oklch(0.55 0.01 260);padding:4px 0 14px;">Ajoutez des exercices ci-dessous</div>
+            </sc-if>
+            <sc-for list="{{ templateItemsView }}" as="item" hint-placeholder-count="2">
+              <div style="background:#ffffff;border:1px solid oklch(0.92 0.006 260);border-radius:10px;padding:12px 14px;margin-bottom:8px;">
+                <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;">
+                  <div style="font-size:15px;font-weight:600;">{{ item.name }}</div>
+                  <button onClick="{{ item.onRemove }}" style="border:none;background:none;color:oklch(0.6 0.01 260);font-size:18px;line-height:1;cursor:pointer;padding:0 4px;">×</button>
+                </div>
+                <div style="display:flex;gap:6px;align-items:center;">
+                  <div style="display:flex;flex-direction:column;gap:2px;">
+                    <span style="font-size:11px;color:oklch(0.55 0.01 260);">Séries</span>
+                    <input type="number" min="1" value="{{ item.sets }}" onChange="{{ item.onSetsChange }}" style="width:56px;padding:8px;border:1px solid oklch(0.88 0.006 260);border-radius:7px;font-family:'SF Mono',Menlo,Consolas,monospace;font-size:14px;text-align:center;"/>
+                  </div>
+                  <div style="display:flex;flex-direction:column;gap:2px;">
+                    <span style="font-size:11px;color:oklch(0.55 0.01 260);">{{ item.repsFieldLabel }}</span>
+                    <input type="number" min="1" value="{{ item.reps }}" onChange="{{ item.onRepsChange }}" style="width:56px;padding:8px;border:1px solid oklch(0.88 0.006 260);border-radius:7px;font-family:'SF Mono',Menlo,Consolas,monospace;font-size:14px;text-align:center;"/>
+                  </div>
+                  <button onClick="{{ item.onToggleRepsType }}" style="align-self:flex-end;padding:8px 10px;border:1px solid oklch(0.88 0.006 260);border-radius:7px;background:oklch(0.97 0.004 260);font-size:12px;color:oklch(0.4 0.01 260);cursor:pointer;white-space:nowrap;">{{ item.repsTypeLabel }}</button>
+                  <div style="display:flex;flex-direction:column;gap:2px;flex:1;">
+                    <span style="font-size:11px;color:oklch(0.55 0.01 260);">Poids (optionnel)</span>
+                    <input type="number" min="0" step="0.5" placeholder="kg" value="{{ item.weight }}" onChange="{{ item.onWeightChange }}" style="width:100%;padding:8px;border:1px solid oklch(0.88 0.006 260);border-radius:7px;font-family:'SF Mono',Menlo,Consolas,monospace;font-size:14px;text-align:center;"/>
+                  </div>
+                </div>
+              </div>
+            </sc-for>
+
+            <div style="font-size:13px;font-weight:700;color:oklch(0.55 0.01 260);text-transform:uppercase;letter-spacing:0.04em;margin:18px 0 8px;">Ajouter un exercice</div>
+            <sc-if value="{{ availableExercisesEmpty }}" hint-placeholder-val="{{ false }}">
+              <div style="font-size:14px;color:oklch(0.55 0.01 260);padding:4px 0;">Tous les exercices disponibles sont ajoutés</div>
+            </sc-if>
+            <sc-for list="{{ availableExercisesForTemplate }}" as="av" hint-placeholder-count="2">
+              <div style="display:flex;align-items:center;justify-content:space-between;background:#ffffff;border:1px solid oklch(0.92 0.006 260);border-radius:10px;padding:11px 14px;margin-bottom:6px;">
+                <div style="font-size:14px;">{{ av.name }}<span style="color:{{ av.badgeColor }};font-size:11px;font-weight:700;margin-left:8px;text-transform:uppercase;">{{ av.badgeLabel }}</span></div>
+                <button onClick="{{ av.onAdd }}" style="border:1px solid #3a6bc9;background:none;color:#3a6bc9;font-size:13px;font-weight:700;border-radius:6px;padding:4px 10px;cursor:pointer;">+</button>
+              </div>
+            </sc-for>
+
+            <div style="display:flex;gap:8px;margin-top:20px;">
+              <button onClick="{{ cancelEditTemplate }}" style="flex:1;padding:12px;border-radius:9px;border:1px solid oklch(0.88 0.006 260);background:#ffffff;color:oklch(0.55 0.01 260);font-size:15px;font-weight:600;cursor:pointer;">Annuler</button>
+              <button onClick="{{ saveTemplate }}" style="flex:1;padding:12px;border-radius:9px;border:none;background:#3a6bc9;color:#ffffff;font-size:15px;font-weight:600;cursor:pointer;">Enregistrer</button>
+            </div>
+          </div>
+        </sc-if>
+
+        <sc-if value="{{ isNotEditingTemplate }}" hint-placeholder-val="{{ true }}">
+          <div>
+            <button onClick="{{ startNewTemplate }}" style="width:100%;padding:13px;border-radius:10px;border:1px dashed oklch(0.75 0.01 260);background:#ffffff;color:#3a6bc9;font-size:15px;font-weight:600;cursor:pointer;margin-bottom:16px;">+ Nouveau template</button>
+            <sc-if value="{{ templatesEmpty }}" hint-placeholder-val="{{ false }}">
+              <div style="font-size:14px;color:oklch(0.55 0.01 260);padding:8px 0;">Aucun template pour l'instant</div>
+            </sc-if>
+            <sc-for list="{{ templatesList }}" as="tpl" hint-placeholder-count="2">
+              <div style="background:#ffffff;border:1px solid oklch(0.92 0.006 260);border-radius:12px;padding:14px;margin-bottom:10px;">
+                <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:4px;">
+                  <div style="font-size:16px;font-weight:700;">{{ tpl.name }}</div>
+                  <span style="font-size:11px;font-weight:700;color:{{ tpl.badgeColor }};text-transform:uppercase;letter-spacing:0.03em;">{{ tpl.badgeLabel }}</span>
+                </div>
+                <div style="font-size:13px;color:oklch(0.55 0.01 260);margin-bottom:10px;">{{ tpl.itemCountLabel }}</div>
+                <div style="display:flex;gap:8px;">
+                  <button onClick="{{ tpl.onEdit }}" style="flex:1;padding:8px;border-radius:7px;border:1px solid oklch(0.88 0.006 260);background:#ffffff;color:oklch(0.4 0.01 260);font-size:13px;font-weight:600;cursor:pointer;">Modifier</button>
+                  <button onClick="{{ tpl.onDelete }}" style="flex:1;padding:8px;border-radius:7px;border:1px solid oklch(0.9 0.04 25);background:#ffffff;color:oklch(0.5 0.15 25);font-size:13px;font-weight:600;cursor:pointer;">Supprimer</button>
+                </div>
+              </div>
+            </sc-for>
+          </div>
+        </sc-if>
+      </div>
+    </sc-if>
+
+    <!-- TAB: SEANCE -->
+    <sc-if value="{{ isTabSeance }}" hint-placeholder-val="{{ false }}">
+      <div>
+        <sc-if value="{{ hasActiveSession }}" hint-placeholder-val="{{ false }}">
+          <div>
+            <div style="background:#ffffff;border:1px solid oklch(0.92 0.006 260);border-radius:12px;padding:14px;margin-bottom:16px;">
+              <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px;">
+                <div style="font-size:17px;font-weight:700;">{{ activeSession.templateName }}</div>
+                <span style="font-size:11px;font-weight:700;color:{{ activeSessionBadgeColor }};text-transform:uppercase;">{{ activeSessionBadgeLabel }}</span>
+              </div>
+              <input type="date" value="{{ activeSession.date }}" onChange="{{ onSessionDateChange }}" style="padding:8px 10px;border:1px solid oklch(0.88 0.006 260);border-radius:7px;font-size:14px;font-family:'SF Mono',Menlo,Consolas,monospace;"/>
+            </div>
+
+            <sc-for list="{{ activeSessionItemsView }}" as="item" hint-placeholder-count="2">
+              <div style="background:#ffffff;border:1px solid oklch(0.92 0.006 260);border-radius:10px;padding:12px 14px;margin-bottom:8px;">
+                <div style="font-size:15px;font-weight:600;margin-bottom:10px;">{{ item.name }}</div>
+                <div style="display:flex;gap:6px;align-items:center;">
+                  <div style="display:flex;flex-direction:column;gap:2px;">
+                    <span style="font-size:11px;color:oklch(0.55 0.01 260);">Séries</span>
+                    <input type="number" min="1" value="{{ item.sets }}" onChange="{{ item.onSetsChange }}" style="width:56px;padding:8px;border:1px solid oklch(0.88 0.006 260);border-radius:7px;font-family:'SF Mono',Menlo,Consolas,monospace;font-size:14px;text-align:center;"/>
+                  </div>
+                  <div style="display:flex;flex-direction:column;gap:2px;">
+                    <span style="font-size:11px;color:oklch(0.55 0.01 260);">{{ item.repsFieldLabel }}</span>
+                    <input type="number" min="1" value="{{ item.reps }}" onChange="{{ item.onRepsChange }}" style="width:56px;padding:8px;border:1px solid oklch(0.88 0.006 260);border-radius:7px;font-family:'SF Mono',Menlo,Consolas,monospace;font-size:14px;text-align:center;"/>
+                  </div>
+                  <button onClick="{{ item.onToggleRepsType }}" style="align-self:flex-end;padding:8px 10px;border:1px solid oklch(0.88 0.006 260);border-radius:7px;background:oklch(0.97 0.004 260);font-size:12px;color:oklch(0.4 0.01 260);cursor:pointer;white-space:nowrap;">{{ item.repsTypeLabel }}</button>
+                  <div style="display:flex;flex-direction:column;gap:2px;flex:1;">
+                    <span style="font-size:11px;color:oklch(0.55 0.01 260);">Poids (optionnel)</span>
+                    <input type="number" min="0" step="0.5" placeholder="kg" value="{{ item.weight }}" onChange="{{ item.onWeightChange }}" style="width:100%;padding:8px;border:1px solid oklch(0.88 0.006 260);border-radius:7px;font-family:'SF Mono',Menlo,Consolas,monospace;font-size:14px;text-align:center;"/>
+                  </div>
+                </div>
+              </div>
+            </sc-for>
+
+            <div style="display:flex;gap:8px;margin-top:16px;">
+              <button onClick="{{ cancelSession }}" style="flex:1;padding:12px;border-radius:9px;border:1px solid oklch(0.88 0.006 260);background:#ffffff;color:oklch(0.55 0.01 260);font-size:15px;font-weight:600;cursor:pointer;">Annuler</button>
+              <button onClick="{{ finishSession }}" style="flex:1;padding:12px;border-radius:9px;border:none;background:#3a6bc9;color:#ffffff;font-size:15px;font-weight:600;cursor:pointer;">Terminer la séance</button>
+            </div>
+          </div>
+        </sc-if>
+
+        <sc-if value="{{ hasNoActiveSession }}" hint-placeholder-val="{{ true }}">
+          <div>
+            <div style="font-size:14px;color:oklch(0.55 0.01 260);margin-bottom:14px;">Choisir un template pour commencer</div>
+            <sc-if value="{{ templatesEmpty }}" hint-placeholder-val="{{ false }}">
+              <div style="font-size:14px;color:oklch(0.55 0.01 260);padding:8px 0;">Créez d'abord un template dans l'onglet Templates</div>
+            </sc-if>
+            <sc-for list="{{ templatesList }}" as="tpl" hint-placeholder-count="2">
+              <div style="display:flex;align-items:center;justify-content:space-between;background:#ffffff;border:1px solid oklch(0.92 0.006 260);border-radius:12px;padding:14px;margin-bottom:10px;">
+                <div>
+                  <div style="font-size:16px;font-weight:700;">{{ tpl.name }}</div>
+                  <div style="font-size:12px;font-weight:700;color:{{ tpl.badgeColor }};text-transform:uppercase;">{{ tpl.badgeLabel }}</div>
+                </div>
+                <button onClick="{{ tpl.onStart }}" style="padding:10px 16px;border-radius:8px;border:none;background:#3a6bc9;color:#ffffff;font-size:14px;font-weight:700;cursor:pointer;">Commencer</button>
+              </div>
+            </sc-for>
+          </div>
+        </sc-if>
+      </div>
+    </sc-if>
+
+    <!-- TAB: HISTORIQUE -->
+    <sc-if value="{{ isTabHistorique }}" hint-placeholder-val="{{ false }}">
+      <div>
+        <sc-if value="{{ hasSelectedSession }}" hint-placeholder-val="{{ false }}">
+          <div>
+            <button onClick="{{ backFromDetail }}" style="border:none;background:none;color:#3a6bc9;font-size:14px;font-weight:600;cursor:pointer;padding:0;margin-bottom:14px;">‹ Retour</button>
+            <div style="background:#ffffff;border:1px solid oklch(0.92 0.006 260);border-radius:12px;padding:16px;margin-bottom:16px;">
+              <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:4px;">
+                <div style="font-size:18px;font-weight:700;">{{ selectedSession.templateName }}</div>
+                <span style="font-size:11px;font-weight:700;color:{{ selectedSessionBadgeColor }};text-transform:uppercase;">{{ selectedSessionBadgeLabel }}</span>
+              </div>
+              <div style="font-size:13px;color:oklch(0.55 0.01 260);font-family:'SF Mono',Menlo,Consolas,monospace;">{{ selectedSessionDateLabel }}</div>
+            </div>
+            <sc-for list="{{ selectedSessionItemsView }}" as="item" hint-placeholder-count="2">
+              <div style="background:#ffffff;border:1px solid oklch(0.92 0.006 260);border-radius:10px;padding:12px 14px;margin-bottom:6px;">
+                <div style="font-size:15px;font-weight:600;margin-bottom:2px;">{{ item.name }}</div>
+                <div style="font-size:14px;color:oklch(0.4 0.01 260);font-family:'SF Mono',Menlo,Consolas,monospace;">{{ item.summary }}</div>
+              </div>
+            </sc-for>
+            <button onClick="{{ onDeleteSelectedSession }}" style="width:100%;padding:11px;border-radius:9px;border:1px solid oklch(0.9 0.04 25);background:#ffffff;color:oklch(0.5 0.15 25);font-size:14px;font-weight:600;cursor:pointer;margin-top:14px;">Supprimer cette séance</button>
+          </div>
+        </sc-if>
+
+        <sc-if value="{{ hasNoSelectedSession }}" hint-placeholder-val="{{ true }}">
+          <div>
+            <div style="display:flex;gap:6px;overflow-x:auto;margin-bottom:16px;padding-bottom:2px;">
+              <sc-for list="{{ historyFilterChips }}" as="chip" hint-placeholder-count="3">
+                <button onClick="{{ chip.onSelect }}" style="{{ chip.style }}">{{ chip.label }}</button>
+              </sc-for>
+            </div>
+            <sc-if value="{{ filteredSessionsEmpty }}" hint-placeholder-val="{{ false }}">
+              <div style="font-size:14px;color:oklch(0.55 0.01 260);padding:8px 0;">Aucune séance enregistrée</div>
+            </sc-if>
+            <sc-for list="{{ filteredSessionsView }}" as="sess" hint-placeholder-count="3">
+              <div onClick="{{ sess.onSelect }}" style="background:#ffffff;border:1px solid oklch(0.92 0.006 260);border-radius:12px;padding:14px;margin-bottom:10px;cursor:pointer;">
+                <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:4px;">
+                  <div style="font-size:16px;font-weight:700;">{{ sess.templateName }}</div>
+                  <span style="font-size:11px;font-weight:700;color:{{ sess.badgeColor }};text-transform:uppercase;">{{ sess.badgeLabel }}</span>
+                </div>
+                <div style="font-size:13px;color:oklch(0.55 0.01 260);font-family:'SF Mono',Menlo,Consolas,monospace;">{{ sess.dateLabel }} · {{ sess.itemCountLabel }}</div>
+              </div>
+            </sc-for>
+          </div>
+        </sc-if>
+      </div>
+    </sc-if>
+
+  </div>
+
+  <div style="flex-shrink:0;display:flex;border-top:1px solid oklch(0.9 0.006 260);background:#ffffff;">
+    <sc-for list="{{ navTabs }}" as="nav" hint-placeholder-count="4">
+      <button onClick="{{ nav.onSelect }}" aria-label="{{ nav.label }}" style="{{ nav.style }}">
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+          <path d="{{ nav.iconPath }}"></path>
+        </svg>
+      </button>
+    </sc-for>
+  </div>
+
+</div>
+
+</x-dc>
+<script type="text/x-dc" data-dc-script>
+const ACCENT = '#3a6bc9';
+const ACCENT_BAS = 'oklch(0.55 0.13 150)';
+const ACCENT_COMMUN = 'oklch(0.5 0.01 260)';
+const CATS = { commun: 'Commun', haut: 'Haut du corps', bas: 'Bas du corps' };
+const CAT_COLOR = { commun: ACCENT_COMMUN, haut: ACCENT, bas: ACCENT_BAS };
+const STORE_KEY = 'gym-tracker-v1';
+
+class Component extends DCLogic {
+  state = {
+    tab: 'templates',
+    exercises: [],
+    templates: [],
+    sessions: [],
+    showAddExercise: false,
+    newExerciseName: '',
+    newExerciseCategory: 'commun',
+    editingTemplate: null,
+    activeSession: null,
+    historyFilter: 'all',
+    selectedSessionId: null
+  };
+
+  componentDidMount() {
+    try {
+      const raw = localStorage.getItem(STORE_KEY);
+      if (raw) {
+        const data = JSON.parse(raw);
+        this.setState({
+          exercises: data.exercises || [],
+          templates: data.templates || [],
+          sessions: data.sessions || []
+        });
+      }
+    } catch (e) {}
+  }
+
+  persist(partial) {
+    this.setState(partial, () => {
+      try {
+        localStorage.setItem(STORE_KEY, JSON.stringify({
+          exercises: this.state.exercises,
+          templates: this.state.templates,
+          sessions: this.state.sessions
+        }));
+      } catch (e) {}
+    });
+  }
+
+  uid() { return Date.now().toString(36) + Math.random().toString(36).slice(2, 7); }
+  today() { return new Date().toISOString().slice(0, 10); }
+
+  formatDate(iso) {
+    try {
+      return new Date(iso + 'T00:00:00').toLocaleDateString('fr-FR', { day: 'numeric', month: 'long', year: 'numeric' });
+    } catch (e) { return iso; }
+  }
+
+  setTab(tab) { this.setState({ tab, selectedSessionId: null }); }
+
+  toggleAddExercise() { this.setState(s => ({ showAddExercise: !s.showAddExercise, newExerciseName: '' })); }
+  setNewExerciseCategory(cat) { this.setState({ newExerciseCategory: cat }); }
+  onNewExerciseNameChange(e) { this.setState({ newExerciseName: e.target.value }); }
+
+  addExercise() {
+    const name = this.state.newExerciseName.trim();
+    if (!name) return;
+    const ex = { id: this.uid(), name, category: this.state.newExerciseCategory };
+    this.persist({ exercises: [...this.state.exercises, ex], newExerciseName: '', showAddExercise: false });
+  }
+
+  deleteExercise(id) {
+    if (!window.confirm('Supprimer cet exercice ?')) return;
+    this.persist({ exercises: this.state.exercises.filter(e => e.id !== id) });
+  }
+
+  startNewTemplate() {
+    this.setState({ editingTemplate: { id: null, name: '', category: 'haut', items: [] } });
+  }
+  editTemplate(tpl) {
+    this.setState({ editingTemplate: JSON.parse(JSON.stringify(tpl)) });
+  }
+  cancelEditTemplate() { this.setState({ editingTemplate: null }); }
+  onTemplateNameChange(e) {
+    this.setState(s => ({ editingTemplate: { ...s.editingTemplate, name: e.target.value } }));
+  }
+  setTemplateCategory(cat) {
+    this.setState(s => ({ editingTemplate: { ...s.editingTemplate, category: cat } }));
+  }
+
+  addExerciseToTemplate(exercise) {
+    const item = { id: this.uid(), exerciseId: exercise.id, name: exercise.name, sets: 3, reps: 8, repsType: 'reps', weight: '' };
+    this.setState(s => ({ editingTemplate: { ...s.editingTemplate, items: [...s.editingTemplate.items, item] } }));
+  }
+  removeTemplateItem(itemId) {
+    this.setState(s => ({ editingTemplate: { ...s.editingTemplate, items: s.editingTemplate.items.filter(i => i.id !== itemId) } }));
+  }
+  updateTemplateItem(itemId, field, val) {
+    this.setState(s => ({ editingTemplate: { ...s.editingTemplate, items: s.editingTemplate.items.map(i => i.id === itemId ? { ...i, [field]: val } : i) } }));
+  }
+  toggleTemplateItemRepsType(itemId) {
+    this.setState(s => ({ editingTemplate: { ...s.editingTemplate, items: s.editingTemplate.items.map(i => i.id === itemId ? { ...i, repsType: i.repsType === 'reps' ? 'sec' : 'reps' } : i) } }));
+  }
+
+  saveTemplate() {
+    const t = this.state.editingTemplate;
+    const name = t.name.trim();
+    if (!name || t.items.length === 0) return;
+    let templates;
+    if (t.id) {
+      templates = this.state.templates.map(x => x.id === t.id ? { ...t, name } : x);
+    } else {
+      templates = [...this.state.templates, { ...t, id: this.uid(), name }];
+    }
+    this.persist({ templates, editingTemplate: null });
+  }
+
+  deleteTemplate(id) {
+    if (!window.confirm('Supprimer ce template ?')) return;
+    this.persist({ templates: this.state.templates.filter(t => t.id !== id) });
+  }
+
+  startSession(tpl) {
+    this.setState({
+      activeSession: {
+        templateId: tpl.id,
+        templateName: tpl.name,
+        category: tpl.category,
+        date: this.today(),
+        items: tpl.items.map(i => ({ ...i }))
+      },
+      tab: 'seance'
+    });
+  }
+  cancelSession() { this.setState({ activeSession: null }); }
+  onSessionDateChange(e) {
+    this.setState(s => ({ activeSession: { ...s.activeSession, date: e.target.value } }));
+  }
+  updateSessionItem(itemId, field, val) {
+    this.setState(s => ({ activeSession: { ...s.activeSession, items: s.activeSession.items.map(i => i.id === itemId ? { ...i, [field]: val } : i) } }));
+  }
+  toggleSessionItemRepsType(itemId) {
+    this.setState(s => ({ activeSession: { ...s.activeSession, items: s.activeSession.items.map(i => i.id === itemId ? { ...i, repsType: i.repsType === 'reps' ? 'sec' : 'reps' } : i) } }));
+  }
+  finishSession() {
+    const s = this.state.activeSession;
+    const session = { id: this.uid(), ...s };
+    this.persist({ sessions: [session, ...this.state.sessions], activeSession: null });
+  }
+
+  setHistoryFilter(v) { this.setState({ historyFilter: v }); }
+  selectSession(id) { this.setState({ selectedSessionId: id }); }
+  backFromDetail() { this.setState({ selectedSessionId: null }); }
+  deleteSession(id) {
+    if (!window.confirm('Supprimer cette séance ?')) return;
+    this.persist({ sessions: this.state.sessions.filter(x => x.id !== id), selectedSessionId: null });
+  }
+
+  itemFieldRow(item, updateFn, toggleFn) {
+    return {
+      id: item.id,
+      name: item.name,
+      sets: item.sets,
+      reps: item.reps,
+      weight: item.weight,
+      repsFieldLabel: item.repsType === 'sec' ? 'Secondes' : 'Répétitions',
+      repsTypeLabel: item.repsType === 'sec' ? 'sec' : 'reps',
+      onSetsChange: (e) => updateFn(item.id, 'sets', e.target.value),
+      onRepsChange: (e) => updateFn(item.id, 'reps', e.target.value),
+      onWeightChange: (e) => updateFn(item.id, 'weight', e.target.value),
+      onToggleRepsType: () => toggleFn(item.id)
+    };
+  }
+
+  renderVals() {
+    const s = this.state;
+    const navDefs = [
+      { key: 'exercices', label: 'Exercices', icon: 'M4.5 9v6M7.5 7v10M16.5 7v10M19.5 9v6M7.5 12h9' },
+      { key: 'templates', label: 'Templates', icon: 'M8 4h8a2 2 0 0 1 2 2v13a1 1 0 0 1-1 1H7a1 1 0 0 1-1-1V6a2 2 0 0 1 2-2zM9 9h6M9 13h6M9 17h3' },
+      { key: 'seance', label: 'Séance', icon: 'M12 3a9 9 0 1 0 0 18 9 9 0 0 0 0-18zM10.5 8.5l5 3.5-5 3.5V8.5z' },
+      { key: 'historique', label: 'Historique', icon: 'M12 3a9 9 0 1 0 0 18 9 9 0 0 0 0-18zM12 7.5V12l3.5 2.5' }
+    ];
+    const navTabs = navDefs.map(n => ({
+      label: n.label,
+      iconPath: n.icon,
+      onSelect: () => this.setTab(n.key),
+      style: `flex:1;display:flex;align-items:center;justify-content:center;padding:14px 4px 16px;border:none;background:none;cursor:pointer;border-top:2px solid ${s.tab === n.key ? ACCENT : 'transparent'};color:${s.tab === n.key ? ACCENT : 'oklch(0.62 0.01 260)'};`
+    }));
+
+    const titles = { exercices: 'Exercices', templates: 'Templates', seance: 'Séance', historique: 'Historique' };
+
+    const categoryOptions = ['commun', 'haut', 'bas'].map(cat => ({
+      label: CATS[cat],
+      onSelect: () => this.setNewExerciseCategory(cat),
+      buttonStyle: `flex:1;padding:9px 6px;border-radius:7px;border:1px solid ${s.newExerciseCategory === cat ? CAT_COLOR[cat] : 'oklch(0.88 0.006 260)'};background:${s.newExerciseCategory === cat ? CAT_COLOR[cat] : '#ffffff'};color:${s.newExerciseCategory === cat ? '#ffffff' : 'oklch(0.4 0.01 260)'};font-size:13px;font-weight:600;cursor:pointer;`
+    }));
+
+    const exerciseSections = ['commun', 'haut', 'bas'].map(cat => {
+      const items = s.exercises.filter(e => e.category === cat).map(e => ({
+        name: e.name,
+        onDelete: () => this.deleteExercise(e.id)
+      }));
+      return { label: CATS[cat], color: CAT_COLOR[cat], isEmpty: items.length === 0, items };
+    });
+
+    const templatesList = s.templates.map(t => ({
+      name: t.name,
+      badgeLabel: CATS[t.category],
+      badgeColor: CAT_COLOR[t.category],
+      itemCountLabel: `${t.items.length} exercice${t.items.length === 1 ? '' : 's'}`,
+      onEdit: () => this.editTemplate(t),
+      onDelete: () => this.deleteTemplate(t.id),
+      onStart: () => this.startSession(t)
+    }));
+
+    const et = s.editingTemplate;
+    const isEditingTemplate = !!et;
+    let templateItemsView = [], templateItemsEmpty = true, availableExercisesForTemplate = [], availableExercisesEmpty = true, templateCategoryOptions = [];
+    if (et) {
+      templateItemsView = et.items.map(item => ({
+        ...this.itemFieldRow(item, (id, f, v) => this.updateTemplateItem(id, f, v), (id) => this.toggleTemplateItemRepsType(id)),
+        onRemove: () => this.removeTemplateItem(item.id)
+      }));
+      templateItemsEmpty = templateItemsView.length === 0;
+      const usedIds = new Set(et.items.map(i => i.exerciseId));
+      availableExercisesForTemplate = s.exercises
+        .filter(e => (e.category === 'commun' || e.category === et.category) && !usedIds.has(e.id))
+        .map(e => ({
+          name: e.name,
+          badgeLabel: CATS[e.category],
+          badgeColor: CAT_COLOR[e.category],
+          onAdd: () => this.addExerciseToTemplate(e)
+        }));
+      availableExercisesEmpty = availableExercisesForTemplate.length === 0;
+      templateCategoryOptions = ['haut', 'bas'].map(cat => ({
+        label: CATS[cat],
+        onSelect: () => this.setTemplateCategory(cat),
+        buttonStyle: `flex:1;padding:9px 6px;border-radius:7px;border:1px solid ${et.category === cat ? CAT_COLOR[cat] : 'oklch(0.88 0.006 260)'};background:${et.category === cat ? CAT_COLOR[cat] : '#ffffff'};color:${et.category === cat ? '#ffffff' : 'oklch(0.4 0.01 260)'};font-size:13px;font-weight:600;cursor:pointer;`
+      }));
+    }
+
+    const as = s.activeSession;
+    const hasActiveSession = !!as;
+    let activeSessionItemsView = [], activeSessionBadgeColor = '', activeSessionBadgeLabel = '';
+    if (as) {
+      activeSessionItemsView = as.items.map(item => ({
+        ...this.itemFieldRow(item, (id, f, v) => this.updateSessionItem(id, f, v), (id) => this.toggleSessionItemRepsType(id))
+      }));
+      activeSessionBadgeColor = CAT_COLOR[as.category];
+      activeSessionBadgeLabel = CATS[as.category];
+    }
+
+    const filterDefs = [{ key: 'all', label: 'Tous' }, ...s.templates.map(t => ({ key: t.id, label: t.name }))];
+    const historyFilterChips = filterDefs.map(f => ({
+      label: f.label,
+      onSelect: () => this.setHistoryFilter(f.key),
+      style: `flex-shrink:0;padding:8px 14px;border-radius:20px;border:1px solid ${s.historyFilter === f.key ? ACCENT : 'oklch(0.88 0.006 260)'};background:${s.historyFilter === f.key ? ACCENT : '#ffffff'};color:${s.historyFilter === f.key ? '#ffffff' : 'oklch(0.4 0.01 260)'};font-size:13px;font-weight:600;cursor:pointer;white-space:nowrap;`
+    }));
+
+    const filteredSessions = s.sessions.filter(sess => s.historyFilter === 'all' || sess.templateId === s.historyFilter);
+    const filteredSessionsView = filteredSessions.map(sess => ({
+      templateName: sess.templateName,
+      badgeLabel: CATS[sess.category],
+      badgeColor: CAT_COLOR[sess.category],
+      dateLabel: this.formatDate(sess.date),
+      itemCountLabel: `${sess.items.length} exercice${sess.items.length === 1 ? '' : 's'}`,
+      onSelect: () => this.selectSession(sess.id)
+    }));
+
+    const selectedSession = s.sessions.find(x => x.id === s.selectedSessionId) || null;
+    let selectedSessionItemsView = [], selectedSessionBadgeColor = '', selectedSessionBadgeLabel = '', selectedSessionDateLabel = '';
+    if (selectedSession) {
+      selectedSessionItemsView = selectedSession.items.map(item => ({
+        name: item.name,
+        summary: `${item.sets} séries × ${item.reps} ${item.repsType === 'sec' ? 'sec' : 'reps'}` + (item.weight ? ` · ${item.weight} kg` : '')
+      }));
+      selectedSessionBadgeColor = CAT_COLOR[selectedSession.category];
+      selectedSessionBadgeLabel = CATS[selectedSession.category];
+      selectedSessionDateLabel = this.formatDate(selectedSession.date);
+    }
+
+    return {
+      tabTitle: titles[s.tab],
+      isTabExercices: s.tab === 'exercices',
+      isTabTemplates: s.tab === 'templates',
+      isTabSeance: s.tab === 'seance',
+      isTabHistorique: s.tab === 'historique',
+      navTabs,
+
+      showAddExercise: s.showAddExercise,
+      addExerciseLabel: s.showAddExercise ? 'Annuler' : '+ Ajouter un exercice',
+      toggleAddExercise: () => this.toggleAddExercise(),
+      newExerciseName: s.newExerciseName,
+      onNewExerciseNameChange: (e) => this.onNewExerciseNameChange(e),
+      categoryOptions,
+      addExercise: () => this.addExercise(),
+      exerciseSections,
+
+      isEditingTemplate,
+      isNotEditingTemplate: !isEditingTemplate,
+      editingTemplate: et || { name: '', category: 'haut' },
+      onTemplateNameChange: (e) => this.onTemplateNameChange(e),
+      templateCategoryOptions,
+      templateItemsView,
+      templateItemsEmpty,
+      availableExercisesForTemplate,
+      availableExercisesEmpty,
+      cancelEditTemplate: () => this.cancelEditTemplate(),
+      saveTemplate: () => this.saveTemplate(),
+      startNewTemplate: () => this.startNewTemplate(),
+      templatesEmpty: s.templates.length === 0,
+      templatesList,
+
+      hasActiveSession,
+      hasNoActiveSession: !hasActiveSession,
+      activeSession: as || { templateName: '', date: '' },
+      activeSessionItemsView,
+      activeSessionBadgeColor,
+      activeSessionBadgeLabel,
+      onSessionDateChange: (e) => this.onSessionDateChange(e),
+      cancelSession: () => this.cancelSession(),
+      finishSession: () => this.finishSession(),
+
+      historyFilterChips,
+      filteredSessionsView,
+      filteredSessionsEmpty: filteredSessionsView.length === 0,
+      hasSelectedSession: !!selectedSession,
+      hasNoSelectedSession: !selectedSession,
+      selectedSession: selectedSession || { templateName: '' },
+      selectedSessionItemsView,
+      selectedSessionBadgeColor,
+      selectedSessionBadgeLabel,
+      selectedSessionDateLabel,
+      backFromDetail: () => this.backFromDetail(),
+      onDeleteSelectedSession: () => selectedSession && this.deleteSession(selectedSession.id)
+    };
+  }
+}
+
+</script>
+</body>
+</html>

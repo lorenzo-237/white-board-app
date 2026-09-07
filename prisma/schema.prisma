@@ -1,0 +1,133 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client"
+  output   = "../src/generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+enum Category {
+  commun
+  haut
+  bas
+}
+
+enum TemplateCategory {
+  haut
+  bas
+}
+
+enum RepsType {
+  reps
+  sec
+}
+
+enum UserRole {
+  ADMIN
+  USER
+}
+
+enum UserStatus {
+  PENDING
+  ACTIVE
+  BLOCKED
+}
+
+/// PENDING until an admin approves the account (setUserStatus).
+model User {
+  id           String     @id @default(cuid())
+  email        String     @unique
+  name         String
+  passwordHash String
+  role         UserRole   @default(USER)
+  status       UserStatus @default(PENDING)
+  createdAt    DateTime   @default(now())
+
+  templates Template[]
+  sessions  WorkoutSession[]
+}
+
+/// Shared across all users - anyone can use any exercise.
+model Exercise {
+  id        String   @id @default(cuid())
+  name      String
+  category  Category
+  createdAt DateTime @default(now())
+}
+
+/// A reusable workout plan: a named list of exercises with target sets/reps/weight.
+/// Owned by a single user.
+model Template {
+  id        String           @id @default(cuid())
+  name      String
+  category  TemplateCategory
+  createdAt DateTime         @default(now())
+  updatedAt DateTime         @updatedAt
+  items     TemplateItem[]
+
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId String
+
+  @@index([userId])
+}
+
+/// One exercise entry inside a Template.
+/// `exerciseId`/`name` are a snapshot, not a live FK: deleting an Exercise
+/// must never affect templates that already reference it (matches the
+/// original app behaviour).
+model TemplateItem {
+  id         String   @id @default(cuid())
+  position   Int
+  exerciseId String
+  name       String
+  sets       Int
+  reps       Int
+  repsType   RepsType
+  weight     String   @default("")
+
+  template   Template @relation(fields: [templateId], references: [id], onDelete: Cascade)
+  templateId String
+
+  @@index([templateId])
+}
+
+/// A finished workout, snapshotting the template's state at the time it was done.
+/// Owned by a single user.
+model WorkoutSession {
+  id           String           @id @default(cuid())
+  /// The source template's id, kept only for the history filter - the
+  /// template itself may since have been edited or deleted.
+  templateId   String?
+  templateName String
+  category     TemplateCategory
+  date         DateTime         @db.Date
+  createdAt    DateTime         @default(now())
+  items        SessionItem[]
+
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId String
+
+  @@index([templateId])
+  @@index([userId])
+}
+
+/// One exercise entry inside a WorkoutSession, snapshotted at finish time.
+model SessionItem {
+  id         String   @id @default(cuid())
+  position   Int
+  exerciseId String
+  name       String
+  sets       Int
+  reps       Int
+  repsType   RepsType
+  weight     String   @default("")
+
+  session   WorkoutSession @relation(fields: [sessionId], references: [id], onDelete: Cascade)
+  sessionId String
+
+  @@index([sessionId])
+}
