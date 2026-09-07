@@ -11,7 +11,7 @@ module.exports = {
       restart_delay: 5000,
       env: {
         NODE_ENV: "production",
-        PORT: 4440,
+        PORT: process.env.APP_PORT || 4440,
       },
     },
   ],
