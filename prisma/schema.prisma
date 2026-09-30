@@ -14,11 +14,8 @@ enum Category {
   commun
   haut
   bas
-}
-
-enum TemplateCategory {
-  haut
-  bas
+  abdo
+  dos
 }
 
 enum RepsType {
@@ -62,11 +59,10 @@ model Exercise {
 /// A reusable workout plan: a named list of exercises with target sets/reps/weight.
 /// Owned by a single user.
 model Template {
-  id        String           @id @default(cuid())
+  id        String   @id @default(cuid())
   name      String
-  category  TemplateCategory
-  createdAt DateTime         @default(now())
-  updatedAt DateTime         @updatedAt
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
   items     TemplateItem[]
 
   user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
@@ -84,12 +80,19 @@ model TemplateItem {
   position   Int
   exerciseId String
   name       String
+  /// Snapshot of the exercise's category at the time it was added.
+  category   Category
   sets       Int
   reps       Int
   repsType   RepsType
   weight     String   @default("")
+  /// Short free-text instructions for this exercise (form cues, tempo...).
+  description String  @default("")
+  /// Per-set { reps, weight } steps for a "gamme montante" (ascending sets)
+  /// item. Null/absent means the item uses the flat sets/reps/weight above.
+  ascendingSets Json?
 
-  template   Template @relation(fields: [templateId], references: [id], onDelete: Cascade)
+  template  Template @relation(fields: [templateId], references: [id], onDelete: Cascade)
   templateId String
 
   @@index([templateId])
@@ -103,9 +106,8 @@ model WorkoutSession {
   /// template itself may since have been edited or deleted.
   templateId   String?
   templateName String
-  category     TemplateCategory
-  date         DateTime         @db.Date
-  createdAt    DateTime         @default(now())
+  date         DateTime @db.Date
+  createdAt    DateTime @default(now())
   items        SessionItem[]
 
   user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
@@ -121,12 +123,19 @@ model SessionItem {
   position   Int
   exerciseId String
   name       String
+  /// Snapshot of the exercise's category at the time it was added.
+  category   Category
   sets       Int
   reps       Int
   repsType   RepsType
   weight     String   @default("")
+  /// Snapshot of the template item's instructions.
+  description String  @default("")
+  /// Per-set { reps, weight } steps for a "gamme montante" (ascending sets)
+  /// item. Null/absent means the item uses the flat sets/reps/weight above.
+  ascendingSets Json?
 
-  session   WorkoutSession @relation(fields: [sessionId], references: [id], onDelete: Cascade)
+  session  WorkoutSession @relation(fields: [sessionId], references: [id], onDelete: Cascade)
   sessionId String
 
   @@index([sessionId])

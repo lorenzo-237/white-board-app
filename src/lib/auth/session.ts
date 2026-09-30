@@ -1,7 +1,7 @@
 import {
   clearSession,
   getSession,
-  useSession,
+  updateSession,
 } from "@tanstack/react-start/server"
 
 interface AuthSessionData {
@@ -32,10 +32,16 @@ export async function requireUserId(): Promise<string> {
   return userId
 }
 
-/** Seals a fresh cookie for this user - also used to slide the 30-day expiry forward. */
+/**
+ * Seals a fresh cookie for this user and restarts the 30-day window.
+ * h3 keeps the original `createdAt` on update (and derives expiry from it),
+ * so it must be reset explicitly for the expiry to actually slide forward.
+ */
 export async function createUserSession(userId: string): Promise<void> {
-  const session = await useSession<AuthSessionData>(sessionConfig())
-  await session.update({ userId })
+  const config = sessionConfig()
+  const session = await getSession<AuthSessionData>(config)
+  session.createdAt = Date.now()
+  await updateSession<AuthSessionData>(config, { userId })
 }
 
 export async function renewCurrentSession(): Promise<void> {

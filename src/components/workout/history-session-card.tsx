@@ -1,6 +1,10 @@
 import { Card, CardContent } from "@/components/ui/card"
-import { CategoryLabel } from "@/components/workout/category-label"
-import { formatSessionDate, pluralize } from "@/lib/workout/format"
+import { CategoryLabelList } from "@/components/workout/category-label-list"
+import {
+  formatSessionDate,
+  getItemCategories,
+  pluralize,
+} from "@/lib/workout/format"
 import type { WorkoutSession } from "@/lib/workout/types"
 
 export function HistorySessionCard({
@@ -26,7 +30,7 @@ export function HistorySessionCard({
           <span className="font-heading text-base font-semibold">
             {session.templateName}
           </span>
-          <CategoryLabel category={session.category} />
+          <CategoryLabelList categories={getItemCategories(session.items)} />
         </div>
         <p className="font-mono text-sm text-muted-foreground">
           {formatSessionDate(session.date)} ·{" "}

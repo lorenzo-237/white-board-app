@@ -2,11 +2,7 @@ import { createServerFn } from "@tanstack/react-start"
 
 import { prisma } from "@/db"
 import { requireUserId } from "@/lib/auth/session"
-import {
-  toItemCreateInput,
-  toTemplateCategory,
-  toWorkoutItem,
-} from "@/lib/workout/server/mappers"
+import { toItemCreateInput, toWorkoutItem } from "@/lib/workout/server/mappers"
 import type { Template } from "@/lib/workout/types"
 
 const templateWithItems = { items: { orderBy: { position: "asc" as const } } }
@@ -14,13 +10,11 @@ const templateWithItems = { items: { orderBy: { position: "asc" as const } } }
 function toTemplate(row: {
   id: string
   name: string
-  category: string
   items: Array<Parameters<typeof toWorkoutItem>[0]>
 }): Template {
   return {
     id: row.id,
     name: row.name,
-    category: toTemplateCategory(row.category),
     items: row.items.map(toWorkoutItem),
   }
 }
@@ -51,13 +45,8 @@ export const saveTemplate = createServerFn({ method: "POST" })
       }
       await tx.template.upsert({
         where: { id: data.id },
-        create: {
-          id: data.id,
-          name: data.name,
-          category: data.category,
-          userId,
-        },
-        update: { name: data.name, category: data.category },
+        create: { id: data.id, name: data.name, userId },
+        update: { name: data.name },
       })
       await tx.templateItem.deleteMany({ where: { templateId: data.id } })
       if (data.items.length > 0) {

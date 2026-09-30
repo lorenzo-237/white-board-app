@@ -114,7 +114,6 @@ export function WorkoutProvider({ children }: { children: React.ReactNode }) {
       setActiveSession({
         templateId: template.id,
         templateName: template.name,
-        category: template.category,
         date: new Date().toISOString().slice(0, 10),
         items: template.items.map((item) => ({ ...item })),
       }),

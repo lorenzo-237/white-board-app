@@ -10,8 +10,13 @@ import {
   ItemTitle,
 } from "@/components/ui/item"
 import { CategoryLabel } from "@/components/workout/category-label"
+import { CategoryLabelList } from "@/components/workout/category-label-list"
 import { ConfirmDeleteDialog } from "@/components/workout/confirm-delete-dialog"
-import { formatItemSummary, formatSessionDate } from "@/lib/workout/format"
+import {
+  formatItemSummary,
+  formatSessionDate,
+  getItemCategories,
+} from "@/lib/workout/format"
 import type { WorkoutSession } from "@/lib/workout/types"
 
 export function SessionDetail({
@@ -41,7 +46,7 @@ export function SessionDetail({
             <span className="font-heading text-lg font-semibold">
               {session.templateName}
             </span>
-            <CategoryLabel category={session.category} />
+            <CategoryLabelList categories={getItemCategories(session.items)} />
           </div>
           <p className="font-mono text-sm text-muted-foreground">
             {formatSessionDate(session.date)}
@@ -53,10 +58,23 @@ export function SessionDetail({
         {session.items.map((item) => (
           <Item key={item.id} variant="outline" size="sm">
             <ItemContent>
-              <ItemTitle className="font-medium">{item.name}</ItemTitle>
+              <ItemTitle className="font-medium">
+                {item.name}
+                {item.category !== "commun" && (
+                  <CategoryLabel
+                    category={item.category}
+                    className="text-[10px]"
+                  />
+                )}
+              </ItemTitle>
               <ItemDescription className="font-mono">
                 {formatItemSummary(item)}
               </ItemDescription>
+              {item.description && (
+                <p className="text-xs whitespace-pre-line text-muted-foreground">
+                  {item.description}
+                </p>
+              )}
             </ItemContent>
           </Item>
         ))}

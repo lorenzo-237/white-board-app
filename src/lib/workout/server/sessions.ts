@@ -2,11 +2,7 @@ import { createServerFn } from "@tanstack/react-start"
 
 import { prisma } from "@/db"
 import { requireUserId } from "@/lib/auth/session"
-import {
-  toItemCreateInput,
-  toTemplateCategory,
-  toWorkoutItem,
-} from "@/lib/workout/server/mappers"
+import { toItemCreateInput, toWorkoutItem } from "@/lib/workout/server/mappers"
 import type { ActiveSession, WorkoutSession } from "@/lib/workout/types"
 
 const sessionWithItems = { items: { orderBy: { position: "asc" as const } } }
@@ -15,7 +11,6 @@ function toWorkoutSession(row: {
   id: string
   templateId: string | null
   templateName: string
-  category: string
   date: Date
   items: Array<Parameters<typeof toWorkoutItem>[0]>
 }): WorkoutSession {
@@ -23,7 +18,6 @@ function toWorkoutSession(row: {
     id: row.id,
     templateId: row.templateId ?? "",
     templateName: row.templateName,
-    category: toTemplateCategory(row.category),
     date: row.date.toISOString().slice(0, 10),
     items: row.items.map(toWorkoutItem),
   }
@@ -50,7 +44,6 @@ export const createSession = createServerFn({ method: "POST" })
         userId,
         templateId: data.templateId || null,
         templateName: data.templateName,
-        category: data.category,
         date: new Date(`${data.date}T00:00:00.000Z`),
         items: {
           create: data.items.map((item, index) =>

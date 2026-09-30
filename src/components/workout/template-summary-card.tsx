@@ -1,8 +1,8 @@
 import { Button } from "@/components/ui/button"
 import { Card, CardContent } from "@/components/ui/card"
-import { CategoryLabel } from "@/components/workout/category-label"
+import { CategoryLabelList } from "@/components/workout/category-label-list"
 import { ConfirmDeleteDialog } from "@/components/workout/confirm-delete-dialog"
-import { pluralize } from "@/lib/workout/format"
+import { getItemCategories, pluralize } from "@/lib/workout/format"
 import type { Template } from "@/lib/workout/types"
 
 interface TemplateSummaryCardProps {
@@ -27,7 +27,7 @@ export function TemplateSummaryCard({
           <span className="font-heading text-base font-semibold">
             {template.name}
           </span>
-          <CategoryLabel category={template.category} />
+          <CategoryLabelList categories={getItemCategories(template.items)} />
         </div>
         <p className="text-sm text-muted-foreground">
           {pluralize(template.items.length, "exercice")}

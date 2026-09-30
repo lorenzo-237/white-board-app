@@ -1,6 +1,7 @@
 import { Card, CardContent } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
-import { CategoryLabel } from "@/components/workout/category-label"
+import { CategoryLabelList } from "@/components/workout/category-label-list"
+import { getItemCategories } from "@/lib/workout/format"
 import type { ActiveSession } from "@/lib/workout/types"
 
 export function ActiveSessionCard({
@@ -17,7 +18,7 @@ export function ActiveSessionCard({
           <span className="font-heading text-lg font-semibold">
             {session.templateName}
           </span>
-          <CategoryLabel category={session.category} />
+          <CategoryLabelList categories={getItemCategories(session.items)} />
         </div>
         <Input
           type="date"

@@ -15,7 +15,7 @@ export function CategoryPicker<TCategory extends Category>({
   className?: string
 }) {
   return (
-    <div className={cn("flex gap-1.5", className)}>
+    <div className={cn("flex flex-wrap gap-1.5", className)}>
       {categories.map((category) => {
         const isActive = category === value
         const colors = CATEGORY_COLORS[category]
@@ -27,7 +27,7 @@ export function CategoryPicker<TCategory extends Category>({
             size="sm"
             onClick={() => onChange(category)}
             className={cn(
-              "flex-1 font-semibold",
+              "font-semibold",
               isActive &&
                 cn(
                   colors.solidBg,

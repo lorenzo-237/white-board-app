@@ -82,6 +82,29 @@ automatiquement après la migration et crée/relance ton compte `ADMIN` actif
 Tant que ce n'est pas fait, l'app tourne mais aucune requête ne peut
 aboutir (pas de table `User` etc.) — connecte-toi une fois le seed passé.
 
+### 3. Migration "items_category_and_ascending_sets" — ✅ déjà appliquée
+
+`Category` a gagné `abdo`/`dos`, et `TemplateItem`/`SessionItem` ont gagné
+`category` (snapshot) et `ascendingSets` (JSON nullable, pour la "gamme
+montante").
+
+### 4. Nouvelle migration : suppression de `Template.category` / `WorkoutSession.category`
+
+Un template/une séance n'a plus de catégorie choisie à la main — elle est
+maintenant déduite des catégories de ses exercices (`getItemCategories` dans
+[src/lib/workout/format.ts](src/lib/workout/format.ts), "commun" étant
+ignoré dès qu'une catégorie plus précise est présente). Les colonnes
+`Template.category` et `WorkoutSession.category` (l'ancien enum
+`TemplateCategory`, maintenant supprimé du schéma) ne servent donc plus à
+rien côté appli. Il faut rejouer :
+
+```bash
+npx prisma migrate dev --name drop_template_session_category
+```
+
+C'est une suppression de colonnes : aucune perte de données gênante (ces
+colonnes n'étaient qu'un affichage), Prisma ne devrait rien demander.
+
 ## Questions ouvertes / décisions déjà prises par défaut
 
 - **SQLite vs Postgres** : tranché, c'est Postgres (déjà configuré).
