@@ -4,7 +4,7 @@ module.exports = {
       name: "white-board-app",
       script: "npm",
       args: "start",
-      cwd: "/home/ubuntu/prod/white-board",
+      cwd: "/home/ubuntu/douxdev/white-board-app",
       instances: 1,
       exec_mode: "fork",
       max_restarts: 10,
