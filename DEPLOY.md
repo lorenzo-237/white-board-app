@@ -1,9 +1,7 @@
 # Déploiement (VPS + PM2)
 
-## Prérequis (une seule fois, dans le repo)
-- Le build actuel (`dist/server/server.js`) exporte seulement un handler `fetch` : il n'écoute sur aucun port.
-  → Ajouter Nitro (`npm i nitro`, puis `nitro()` dans les plugins de `vite.config.ts`) pour générer `.output/server/index.mjs`.
-- Corriger le script `start` dans `package.json` : `node .output/server/index.mjs` (actuellement `.dist/server/index.mjs`).
+> `npm run build` génère via Nitro un serveur Node autonome : `.output/server/index.mjs`
+> (+ fichiers statiques dans `.output/public`). `npm start` le lance et écoute sur `PORT`.
 
 ## Serveur (une seule fois)
 1. Node LTS, PostgreSQL et PM2 (`npm i -g pm2`)
