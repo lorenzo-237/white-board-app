@@ -6,6 +6,5 @@
 [x] sur les séances afficher le noms de toutes les catégories d'exos, sauf commun car commun est une catégorie lambda
 [x] pareil sur l'historique
 [x] la déconnexion il faut un message de confirmation
-
 [x] le bouton prolonger de 30 jours ne semble pas fonctionner
 [x] sur la page nouveau template, un exercice doit avoir une petite description également, dans laquelle je peux ajouter de légères instruction pour cette exercice là

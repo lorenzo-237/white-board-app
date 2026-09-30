@@ -1,3 +1,4 @@
+import * as React from "react"
 import {
   HeadContent,
   Scripts,
@@ -22,7 +23,18 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
           content: "width=device-width, initial-scale=1",
         },
         {
-          title: "Suivi Séances",
+          title: "White Board",
+        },
+        // Single entry: HeadContent dedupes metas by name, so a light/dark
+        // pair via `media` would silently lose one of them.
+        { name: "theme-color", content: "#ffffff" },
+        // iOS ignores most of the manifest and relies on these instead.
+        { name: "apple-mobile-web-app-capable", content: "yes" },
+        { name: "mobile-web-app-capable", content: "yes" },
+        { name: "apple-mobile-web-app-title", content: "WB" },
+        {
+          name: "apple-mobile-web-app-status-bar-style",
+          content: "default",
         },
       ],
       links: [
@@ -30,6 +42,9 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
           rel: "stylesheet",
           href: appCss,
         },
+        { rel: "manifest", href: "/manifest.json" },
+        { rel: "icon", href: "/assets/icon.svg", type: "image/svg+xml" },
+        { rel: "apple-touch-icon", href: "/assets/apple-touch-icon.png" },
       ],
     }),
     notFoundComponent: () => (
@@ -45,8 +60,14 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
 function RootDocument({ children }: { children: React.ReactNode }) {
   const { queryClient } = Route.useRouteContext()
 
+  React.useEffect(() => {
+    // Dev is skipped so a stale service worker never masks Vite's HMR.
+    if (import.meta.env.DEV || !("serviceWorker" in navigator)) return
+    navigator.serviceWorker.register("/sw.js").catch(() => {})
+  }, [])
+
   return (
-    <html lang="en">
+    <html lang="fr">
       <head>
         <HeadContent />
       </head>

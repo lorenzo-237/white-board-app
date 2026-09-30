@@ -1,25 +1,37 @@
 {
-  "short_name": "TanStack App",
-  "name": "Create TanStack App Sample",
+  "id": "/",
+  "short_name": "WB",
+  "name": "White Board",
+  "description": "Templates d'entraînement et historique des séances",
+  "lang": "fr",
   "icons": [
     {
-      "src": "favicon.ico",
-      "sizes": "64x64 32x32 24x24 16x16",
-      "type": "image/x-icon"
+      "src": "/assets/icon-96x96.png",
+      "type": "image/png",
+      "sizes": "96x96"
     },
     {
-      "src": "logo192.png",
+      "src": "/assets/icon-192x192.png",
       "type": "image/png",
-      "sizes": "192x192"
+      "sizes": "192x192",
+      "purpose": "any"
     },
     {
-      "src": "logo512.png",
+      "src": "/assets/icon-512x512.png",
       "type": "image/png",
-      "sizes": "512x512"
+      "sizes": "512x512",
+      "purpose": "any"
+    },
+    {
+      "src": "/assets/icon.svg",
+      "type": "image/svg+xml",
+      "sizes": "any"
     }
   ],
-  "start_url": ".",
+  "start_url": "/",
+  "scope": "/",
   "display": "standalone",
-  "theme_color": "#000000",
+  "orientation": "portrait",
+  "theme_color": "#ffffff",
   "background_color": "#ffffff"
 }

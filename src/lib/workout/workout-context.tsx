@@ -16,6 +16,7 @@ import {
   listTemplates,
   saveTemplate as saveTemplateFn,
 } from "@/lib/workout/server/templates"
+import { createId } from "@/lib/workout/format"
 import type {
   ActiveSession,
   Category,
@@ -45,15 +46,63 @@ export interface WorkoutContextValue {
   updateActiveSessionDate: (date: string) => void
   updateActiveSessionItem: (itemId: string, patch: Partial<WorkoutItem>) => void
   finishSession: () => void
+  isFinishingSession: boolean
+  finishSessionFailed: boolean
   deleteSession: (id: string) => void
 }
 
 const WorkoutContext = React.createContext<WorkoutContextValue | null>(null)
 
-export function WorkoutProvider({ children }: { children: React.ReactNode }) {
-  const queryClient = useQueryClient()
+function activeSessionStorageKey(userId: string) {
+  return `white-board:active-session:${userId}`
+}
+
+/**
+ * Keeps the in-progress session in localStorage so it survives the phone
+ * killing the (PWA) app between sets. Read after mount to avoid an SSR
+ * hydration mismatch; storage failures are ignored (private mode, quota...).
+ */
+function usePersistedActiveSession(userId: string) {
+  const storageKey = activeSessionStorageKey(userId)
   const [activeSession, setActiveSession] =
     React.useState<ActiveSession | null>(null)
+  const [hydrated, setHydrated] = React.useState(false)
+
+  React.useEffect(() => {
+    try {
+      const stored = window.localStorage.getItem(storageKey)
+      if (stored) setActiveSession(JSON.parse(stored) as ActiveSession)
+    } catch {
+      // Unreadable or corrupted entry: start without an active session.
+    }
+    setHydrated(true)
+  }, [storageKey])
+
+  React.useEffect(() => {
+    if (!hydrated) return
+    try {
+      if (activeSession) {
+        window.localStorage.setItem(storageKey, JSON.stringify(activeSession))
+      } else {
+        window.localStorage.removeItem(storageKey)
+      }
+    } catch {
+      // Storage unavailable: the session simply isn't persisted.
+    }
+  }, [activeSession, hydrated, storageKey])
+
+  return [activeSession, setActiveSession] as const
+}
+
+export function WorkoutProvider({
+  userId,
+  children,
+}: {
+  userId: string
+  children: React.ReactNode
+}) {
+  const queryClient = useQueryClient()
+  const [activeSession, setActiveSession] = usePersistedActiveSession(userId)
 
   const exercisesQuery = useQuery({
     queryKey: QUERY_KEYS.exercises,
@@ -115,7 +164,9 @@ export function WorkoutProvider({ children }: { children: React.ReactNode }) {
         templateId: template.id,
         templateName: template.name,
         date: new Date().toISOString().slice(0, 10),
-        items: template.items.map((item) => ({ ...item })),
+        // Fresh ids: SessionItem ids must not reuse the template items' ids,
+        // or a second session from the same template hits a unique constraint.
+        items: template.items.map((item) => ({ ...item, id: createId() })),
       }),
     cancelSession: () => setActiveSession(null),
     updateActiveSessionDate: (date) =>
@@ -133,9 +184,14 @@ export function WorkoutProvider({ children }: { children: React.ReactNode }) {
       ),
     finishSession: () => {
       if (!activeSession) return
-      createSessionMutation.mutate(activeSession)
-      setActiveSession(null)
+      // Only drop the local copy once the server has it, so a network
+      // failure never loses the session.
+      createSessionMutation.mutate(activeSession, {
+        onSuccess: () => setActiveSession(null),
+      })
     },
+    isFinishingSession: createSessionMutation.isPending,
+    finishSessionFailed: createSessionMutation.isError,
     deleteSession: (id) => deleteSessionMutation.mutate(id),
   }
 

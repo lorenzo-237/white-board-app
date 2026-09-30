@@ -1,0 +1,54 @@
+<!doctype html>
+<html lang="fr">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Hors ligne · White Board</title>
+    <style>
+      :root {
+        color-scheme: light dark;
+        --bg: #ffffff;
+        --fg: #0c0a09;
+        --muted: #78716c;
+      }
+      @media (prefers-color-scheme: dark) {
+        :root {
+          --bg: #0c0a09;
+          --fg: #fafaf9;
+          --muted: #a8a29e;
+        }
+      }
+      body {
+        margin: 0;
+        min-height: 100dvh;
+        display: grid;
+        place-items: center;
+        padding: 16px;
+        background: var(--bg);
+        color: var(--fg);
+        font-family: system-ui, sans-serif;
+        text-align: center;
+      }
+      p {
+        color: var(--muted);
+      }
+      button {
+        margin-top: 8px;
+        padding: 10px 20px;
+        border: 0;
+        border-radius: 999px;
+        background: var(--fg);
+        color: var(--bg);
+        font: inherit;
+        font-weight: 600;
+      }
+    </style>
+  </head>
+  <body>
+    <main>
+      <h1>Pas de connexion</h1>
+      <p>Ta séance en cours est conservée sur cet appareil.</p>
+      <button type="button" onclick="location.reload()">Réessayer</button>
+    </main>
+  </body>
+</html>

@@ -2,7 +2,7 @@
 
 ## État des lieux — base de données
 
-L'app ("Suivi Séances") est branchée sur Postgres via Prisma 7 + TanStack
+L'app ("White Board") est branchée sur Postgres via Prisma 7 + TanStack
 Query.
 
 - [prisma/schema.prisma](prisma/schema.prisma) — `User`, `Exercise`,

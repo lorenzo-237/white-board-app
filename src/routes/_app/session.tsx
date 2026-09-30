@@ -19,6 +19,8 @@ function SessionPage() {
     updateActiveSessionDate,
     updateActiveSessionItem,
     finishSession,
+    isFinishingSession,
+    finishSessionFailed,
   } = useWorkout()
 
   if (activeSession) {
@@ -53,10 +55,21 @@ function SessionPage() {
           >
             Annuler
           </Button>
-          <Button type="button" className="flex-1" onClick={finishSession}>
-            Terminer la séance
+          <Button
+            type="button"
+            className="flex-1"
+            onClick={finishSession}
+            disabled={isFinishingSession}
+          >
+            {isFinishingSession ? "Enregistrement…" : "Terminer la séance"}
           </Button>
         </div>
+        {finishSessionFailed && (
+          <p className="mt-2 text-center text-sm text-destructive">
+            Échec de l'enregistrement. La séance est conservée, réessaie une
+            fois connecté.
+          </p>
+        )}
       </div>
     )
   }

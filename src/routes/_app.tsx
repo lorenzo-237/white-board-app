@@ -18,7 +18,7 @@ function AppLayout() {
   const { user } = Route.useRouteContext()
 
   return (
-    <WorkoutProvider>
+    <WorkoutProvider userId={user.id}>
       <AppShell user={user}>
         <Outlet />
       </AppShell>
