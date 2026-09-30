@@ -2,6 +2,7 @@
 
 > `npm run build` génère via Nitro un serveur Node autonome : `.output/server/index.mjs`
 > (+ fichiers statiques dans `.output/public`). `npm start` le lance et écoute sur `PORT`.
+> Le serveur charge `.env` via `node --env-file=.env` (Node ≥ 20.6) : sans ça, `SESSION_SECRET` / `DATABASE_URL` sont vides → erreur 500.
 
 ## Serveur (une seule fois)
 1. Node LTS, PostgreSQL et PM2 (`npm i -g pm2`)
