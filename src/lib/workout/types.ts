@@ -1,5 +1,5 @@
 /** An exercise's muscle-group category. "commun" exercises are usable in any template. */
-export type Category = "commun" | "haut" | "bas" | "abdo" | "dos"
+export type Category = "commun" | "echauffement" | "haut" | "bas" | "abdo" | "dos"
 
 export type RepsType = "reps" | "sec"
 

@@ -124,6 +124,14 @@ export function TemplateForm({
     return true
   })
 
+  const itemCountByExercise = new Map<string, number>()
+  for (const item of template.items) {
+    itemCountByExercise.set(
+      item.exerciseId,
+      (itemCountByExercise.get(item.exerciseId) ?? 0) + 1
+    )
+  }
+
   function handleSubmit(event: React.FormEvent) {
     event.preventDefault()
     const name = template.name.trim()
@@ -230,6 +238,7 @@ export function TemplateForm({
               <AvailableExerciseRow
                 key={exercise.id}
                 exercise={exercise}
+                count={itemCountByExercise.get(exercise.id) ?? 0}
                 onAdd={() => addItem(exercise)}
               />
             ))}

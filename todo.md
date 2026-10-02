@@ -8,3 +8,7 @@
 [x] la déconnexion il faut un message de confirmation
 [x] le bouton prolonger de 30 jours ne semble pas fonctionner
 [x] sur la page nouveau template, un exercice doit avoir une petite description également, dans laquelle je peux ajouter de légères instruction pour cette exercice là
+[x] dans la liste des exos, trie par ordre alphabétiques
+[x] possibilité de renommer un exo
+[x] nouvelle catégorie echauffement
+[x] dans nouveau template quand j'ajoute une exo il faut un mini compteur à côté pour éviter de devoir scroll en haut pour voir cb de fois il est présent dans le template

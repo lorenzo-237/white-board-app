@@ -5,6 +5,7 @@ import {
   createExercise,
   deleteExercise as deleteExerciseFn,
   listExercises,
+  renameExercise as renameExerciseFn,
 } from "@/lib/workout/server/exercises"
 import {
   createSession,
@@ -38,6 +39,7 @@ export interface WorkoutContextValue {
   sessions: Array<WorkoutSession>
   activeSession: ActiveSession | null
   addExercise: (name: string, category: Category) => void
+  renameExercise: (id: string, name: string) => void
   deleteExercise: (id: string) => void
   saveTemplate: (template: Template) => void
   deleteTemplate: (id: string) => void
@@ -123,6 +125,16 @@ export function WorkoutProvider({
     onSuccess: () =>
       queryClient.invalidateQueries({ queryKey: QUERY_KEYS.exercises }),
   })
+  const renameExerciseMutation = useMutation({
+    mutationFn: (input: { id: string; name: string }) =>
+      renameExerciseFn({ data: input }),
+    // Template items are renamed too, so both lists are stale.
+    onSuccess: () =>
+      Promise.all([
+        queryClient.invalidateQueries({ queryKey: QUERY_KEYS.exercises }),
+        queryClient.invalidateQueries({ queryKey: QUERY_KEYS.templates }),
+      ]),
+  })
   const deleteExerciseMutation = useMutation({
     mutationFn: (id: string) => deleteExerciseFn({ data: { id } }),
     onSuccess: () =>
@@ -156,6 +168,8 @@ export function WorkoutProvider({
     activeSession,
     addExercise: (name, category) =>
       addExerciseMutation.mutate({ name: name.trim(), category }),
+    renameExercise: (id, name) =>
+      renameExerciseMutation.mutate({ id, name: name.trim() }),
     deleteExercise: (id) => deleteExerciseMutation.mutate(id),
     saveTemplate: (template) => saveTemplateMutation.mutate(template),
     deleteTemplate: (id) => deleteTemplateMutation.mutate(id),

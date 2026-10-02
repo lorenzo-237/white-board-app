@@ -2,6 +2,7 @@ import type { Category } from "@/lib/workout/types"
 
 export const CATEGORY_LABELS: Record<Category, string> = {
   commun: "Commun",
+  echauffement: "Échauffement",
   haut: "Haut du corps",
   bas: "Bas du corps",
   abdo: "Abdos",
@@ -10,6 +11,7 @@ export const CATEGORY_LABELS: Record<Category, string> = {
 
 export const EXERCISE_CATEGORIES: Array<Category> = [
   "commun",
+  "echauffement",
   "haut",
   "bas",
   "abdo",
@@ -26,6 +28,12 @@ export const CATEGORY_COLORS: Record<
     border: "border-muted-foreground/40",
     solidBg: "bg-muted-foreground",
     solidText: "text-background",
+  },
+  echauffement: {
+    text: "text-rose-600 dark:text-rose-400",
+    border: "border-rose-600 dark:border-rose-400",
+    solidBg: "bg-rose-600 dark:bg-rose-500",
+    solidText: "text-white",
   },
   haut: {
     text: "text-blue-600 dark:text-blue-400",

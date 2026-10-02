@@ -12,7 +12,8 @@ export const Route = createFileRoute("/_app/exercises")({
 })
 
 function ExercisesPage() {
-  const { exercises, addExercise, deleteExercise } = useWorkout()
+  const { exercises, addExercise, renameExercise, deleteExercise } =
+    useWorkout()
   const [showForm, setShowForm] = React.useState(false)
 
   return (
@@ -43,6 +44,7 @@ function ExercisesPage() {
           exercises={exercises.filter(
             (exercise) => exercise.category === category
           )}
+          onRenameExercise={renameExercise}
           onDeleteExercise={deleteExercise}
         />
       ))}

@@ -12,6 +12,7 @@ datasource db {
 
 enum Category {
   commun
+  echauffement
   haut
   bas
   abdo

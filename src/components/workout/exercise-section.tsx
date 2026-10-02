@@ -7,10 +7,12 @@ import type { Category, Exercise } from "@/lib/workout/types"
 export function ExerciseSection({
   category,
   exercises,
+  onRenameExercise,
   onDeleteExercise,
 }: {
   category: Category
   exercises: Array<Exercise>
+  onRenameExercise: (id: string, name: string) => void
   onDeleteExercise: (id: string) => void
 }) {
   return (
@@ -31,6 +33,7 @@ export function ExerciseSection({
             <ExerciseListItem
               key={exercise.id}
               exercise={exercise}
+              onRename={(name) => onRenameExercise(exercise.id, name)}
               onDelete={() => onDeleteExercise(exercise.id)}
             />
           ))}
